@@ -1,0 +1,71 @@
+//==========================================================================
+//  Author		    : CYTRON TECHNOLOGIES SDN BHD (Modified by JingXian He)
+//  Program description : This program demonstrates how to display text to the LCD screen and sent data to computer.
+//==========================================================================
+/* The circuit uses the following pins:
+ * LCD RS pin to digital pin 8
+ * LCD Enable pin to digital pin 9
+ * LCD D4 pin to digital pin 4
+ * LCD D5 pin to digital pin 5
+ * LCD D6 pin to digital pin 6
+ * LCD D7 pin to digital pin 7
+ * LCD D7 pin to digital pin 2
+ * LCD D7 pin to digital pin 3
+ * LCD R/W pin to ground
+*/
+
+#include <LiquidCrystal.h>
+#include "DHT.h"
+#define DHTPIN 2    // what pin we're connected to
+#define DHTTYPE DHT11   // DHT 11 
+DHT dht(DHTPIN, DHTTYPE);   //IMPORTANT
+
+
+//Define the pins that are used by the LCD.
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+int h;//create a variable to hold humidity
+int t;//create a variable to hold tempiture
+int greenLed=3; //connect green LED to Digital Pin 3
+
+void setup ()
+{
+  dht.begin();                              //begin dht program
+  lcd.begin(16, 2);                         // set the lcd dimension
+  lcd.clear();                              // LCD screen clear
+  lcd.print("JingXianHe");                   // display text
+  lcd.setCursor(0,1);                       // set lcd.setCursor  position (column,row) 
+  lcd.print("200238257");                   // display text
+  pinMode(greenLed,OUTPUT);               //Set ledPin as output 
+  Serial.begin(9600);                     //open serial port
+  Serial.println("DHTxx test!");          //sent information to serial port
+  delay(1000);                            //delay 1 second
+}
+
+void loop()
+{
+  h = dht.readHumidity();                    //to get humidity from sensor
+  t= dht.readTemperature();                   //to get temperature from sensor
+  lcd.clear();                              // LCD screen clear
+  lcd.print("Humidity:");                   // display text
+  lcd.print(h);                             //display humidity
+  lcd.print(" %");                          //display text
+  lcd.setCursor(0,1);                        // set lcd.setCursor  position (column,row)
+  lcd.print("Temp:");                       //display text
+  lcd.print(t);                             //display tempeture
+  lcd.print(" *C");                         //display text
+  if (t > 22)                               //if tempeture over 21
+  {digitalWrite(greenLed,HIGH);             //Set green LED to high
+  delay(3000);
+  digitalWrite(greenLed,LOW);               //turn off the greenLed  //wait 3 minutes to process the data
+  }
+  if(t >19){
+  Serial.print("Humidity: ");               //send text to serial port
+  Serial.print(h);                          //send variable to serial port
+  Serial.print(" %\t");                     //send text to serial port
+  Serial.print("Temperature: ");            //send text to serial port
+  Serial.print(t);                          //send variable to serial port
+  Serial.println(" *C");                    //send text to serial port
+  delay(500);                               //wait 1 minu
+  }                             
+}
